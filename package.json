@@ -4,8 +4,17 @@
   "description": "An app that allows you to create a shopping list and take it on the go.",
   "main": "\u001b[D\u001bsrc/server.js)",
   "scripts": {
-    "test": "SET NODE_ENV=test&& jasmine"
+    "test": "SET NODE_ENV=test&& jasmine",
+    "start": "node src/server.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "jasmine": "^3.5.0",
+    "request": "^2.88.0"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1"
+  }
 }
