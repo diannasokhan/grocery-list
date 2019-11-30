@@ -1,0 +1,11 @@
+{
+  "name": "grocery-list",
+  "version": "1.0.0",
+  "description": "An app that allows you to create a shopping list and take it on the go.",
+  "main": "\u001b[D\u001bsrc/server.js)",
+  "scripts": {
+    "test": "SET NODE_ENV=test&& jasmine"
+  },
+  "author": "",
+  "license": "ISC"
+}
