@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <% include ../static/partials/head.ejs %>
+  </head>
+  <body>
+    <main class="container">
+      <% include ../static/partials/navbar.ejs %>
+
+      <h1>Lists</h1>
+
+      <ul class="list-group">
+
+        <% lists.forEach((list) => { %>
+          
+          <li class="list-group-item">
+            <a href="/lists/<%= list.id %>"> <%- list.title %> </a>
+          </li>
+        <% }) %>
+      </ul>
+
+    </main>
+    <% include ../static/partials/baseScripts.ejs %>
+  </body>
+</html>

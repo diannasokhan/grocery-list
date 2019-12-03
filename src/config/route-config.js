@@ -1,9 +1,9 @@
 module.exports = {
     init(app){
         const staticRoutes = require("../routes/static");
-        //const itemRoutes = require("../routes/items");
+        const listRoutes = require("../routes/lists");
 
         app.use(staticRoutes);
-        //app.use(itemRoutes);
+        app.use(listRoutes);
     }
 }
