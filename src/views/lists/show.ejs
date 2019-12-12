@@ -14,6 +14,38 @@
       </form>
 
       <p><%- list.description %></p>
+
+      <a href="/lists/<%= list.id %>/items/new" class="btn btn-success">Add</a>
+
+      <hr>
+   
+      <ul class="list-group">
+        <% list.items.forEach((item) => { %>
+          <li class="list-group-item">
+            <% if(item.purchased == false) { %>
+              <%- item.name %>
+            <% } else { %>
+              <del><%- item.name %></del>
+            <% } %>
+             
+            <form style="display:initial" action="/lists/<%= item.listId %>/items/<%= item.id %>/destroy" method="post">
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+            <a href="/lists/<%= item.listId %>/items/<%= item.id %>/edit" class="btn btn-warning">Edit</a>
+            <% if(item.purchased == false) { %>
+              <form style="display:initial" action="/lists/<%= item.listId %>/items/<%= item.id %>/purchased" method="post">
+                <button type="submit" class="btn btn-warning">Purchased</button>
+              </form>
+              
+            <% } else { %>
+              <form style="display:initial" action="/lists/<%= item.listId %>/items/<%= item.id %>/unpurchased" method="post">
+                <button type="submit" class="btn btn-warning">Unpurchased</button>
+              </form>
+            <% } %>
+            
+          </li>
+        <% }) %>
+      </ul>
     </main>
 
     <% include ../static/partials/baseScripts.ejs %>
