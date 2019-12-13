@@ -8,6 +8,8 @@
 
     <main class="container">
 
+      <% include ../static/partials/messages.ejs %>
+
       <h2>Edit List</h2>
 
       <form action="/lists/<%= list.id %>/update" method="post">

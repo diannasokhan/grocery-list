@@ -67,6 +67,26 @@ describe("routes : items", () => {
                 });
             });
         });
+        
+        it("should not create a new item that fails validations", (done) => {
+            const options = {
+                url: `${base}/${this.list.id}/items/create`,
+                form: {
+                    name:"a"
+                }
+            };
+            request.post(options, (err, res, body) => {
+                Item.findOne({
+                    where: {name: "a"}
+                }).then((item) => {
+                    expect(item).toBeNull();
+                    done();
+                }).catch((err) => {
+                    console.log(err);
+                    done();
+                })
+            })
+        })
     });
 
    describe("POST /lists/:listId/items/:id/destroy", () => {
@@ -164,9 +184,11 @@ describe("routes : items", () => {
                 expect(err).toBeNull();
                 expect(item.purchased).toBe(false);
                 done();
-            })
-        })
-    })
-})
+            });
+        });
+    });
+});
+
+
 
 })

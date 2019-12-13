@@ -63,6 +63,24 @@ describe("routes : lists", () => {
                 });
             });
         });
+        it("should not create a list that doesnt pass validation", (done) => {
+            const options = {
+                url: `${base}/create`,
+                form: {
+                    title: "hi",
+                    description: "hello"
+                }
+            };
+            request.post(options, (err, res, body) => {
+                List.findOne({where: {title: "hi"}}).then((list) => {
+                    expect(list).toBeNull();
+                    done();
+                }).catch((err) => {
+                    console.log(err);
+                    done();
+                })
+            })
+        })
     });
     describe("GET /lists/:id", () => {
         it("should render a view with a selected list", (done) => {
