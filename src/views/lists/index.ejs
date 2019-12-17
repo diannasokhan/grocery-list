@@ -16,11 +16,11 @@
       <ul class="list-group">
 
         <% lists.forEach((list) => { %>
-          <% if(currentUser.id == list.userId) { %>
           <li class="list-group-item">
+            <% if(currentUser && (currentUser.id == list.userId)) { %>  
             <a href="/lists/<%= list.id %>"> <%- list.title %> </a>
+            <% } %>    
           </li>
-          <% } %>
         <% }) %>
       </ul> 
 

@@ -43,7 +43,9 @@ describe("routes : lists", () => {
     });
 
     describe("GET /lists", () => {
-        it("should return all lists", (done) => {
+
+        it("should return all lists.", (done) => {
+
             request.get(base, (err, res, body) => {
                 expect(err).toBeNull();
                 expect(body).toContain("Monday's shopping list");

@@ -2,10 +2,15 @@
     <div class="inner">
        <h1 class="masthead-brand">My Grocery List</h1>
        <nav class="nav nav-masthead justify-content-center">
-           <a class="nav-link" href="/">Home</a>
+           
+          <li class="nav-item">
+            <a class="nav-link" href="/">Home</a>
+          </li>
            <% if(currentUser) { %>
             <li class="nav-item">
               <a class="nav-link" href="/users/sign_out">Sign out</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" href="/lists">My Lists</a>
             </li>
           <% } else { %>

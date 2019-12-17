@@ -1,6 +1,14 @@
 const userQueries = require("../db/queries.users.js");
 const passport = require("passport");
 
+function buildErrorList(err) {
+    return err.errors.map(error => ({
+      location: "body",
+      param: error.path + ":",
+      msg: error.message,
+      value: ""
+    }));
+  }
 module.exports = {
     signUp(req, res, next){
         res.render("users/sign_up");
@@ -15,7 +23,7 @@ module.exports = {
 
         userQueries.createUser(newUser, (err, user) => {
             if(err){
-                req.flash("error", err);
+                req.flash("error", buildErrorList(err));
                 res.redirect("/users/sign_up");
             }else{
                 passport.authenticate("local")(req, res, () => {

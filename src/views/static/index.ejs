@@ -10,10 +10,19 @@
      <main class="container">
 
         <% include ../static/partials/messages.ejs %> 
-         <h2>Create a list, save some time.</h2>
-         <p>
-             "Have you ever written a grocery list, but ended up leaving it at home? Well, skip the pencil and paper, create your grocery list and go."
-         </p>
+
+        <div class="jumbotron bg-transparent" >
+          <h2>Create a list, save some time.</h2>
+          <p class="lead">Have you ever written a grocery list, but ended up leaving it at home?</p>
+          <hr class="my-4">
+          <p> Well, skip the pencil and paper, create your grocery list and go.</p>
+          <% if(!currentUser) { %>
+          <p class="lead">
+            <a class="btn btn-primary btn-lg" href="/users/sign_up" role="button">Let's get started!</a>
+          </p>
+          <% } %>
+        </div>
+  
      </main>
 
       <% include ./partials/baseScripts.ejs %>
