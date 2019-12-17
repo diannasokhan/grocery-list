@@ -9,15 +9,21 @@
 
       <h1>Lists</h1>
 
+      <% if(currentUser) { %>
+        <a href="/lists/new" class="btn btn-success">New List</a>
+      <% } %>
+
       <ul class="list-group">
 
         <% lists.forEach((list) => { %>
-          
+          <% if(currentUser.id == list.userId) { %>
           <li class="list-group-item">
             <a href="/lists/<%= list.id %>"> <%- list.title %> </a>
           </li>
+          <% } %>
         <% }) %>
-      </ul>
+      </ul> 
+
 
     </main>
     <% include ../static/partials/baseScripts.ejs %>

@@ -1,4 +1,5 @@
 const listQueries = require("../db/queries.lists.js");
+const Authorizer = require("../policies/application")
 
 module.exports = {
     index(req, res, next){
@@ -12,20 +13,38 @@ module.exports = {
         })
     },
     new(req, res, next){
-        res.render("lists/new");
+        
+        const authorized = new Authorizer(req.user).new();
+        
+        if(authorized){
+            res.render("lists/new");
+        }else{
+            req.flash("notice", "You are not authorized to do that");
+            res.redirect("/lists")
+        }
     },
     create(req, res, next){
-        let newList = {
-            title: req.body.title,
-            description: req.body.description
-        };
-        listQueries.addList(newList, (err, list) => {
-            if(err){
-                res.redirect(500, "/lists/new");
-            }else{
-                res.redirect(303, `/lists/${list.id}`);
-            }
-        })
+
+        const authorized = new Authorizer(req.user).create();
+        
+        if(authorized){
+            let newList = {
+                title: req.body.title,
+                description: req.body.description,
+                userId: req.user.id
+            };
+            listQueries.addList(newList, (err, list) => {
+                if(err){
+                    res.redirect(500, "/lists/new");
+                }else{
+                    res.redirect(303, `/lists/${list.id}`);
+                }
+            })
+        }else{
+            req.flash("notice", "You are not authorized to do that.");
+            res.redirect("/lists")
+        }
+        
     },
     show(req, res, next){
         listQueries.getList(req.params.id, (err, list) => {
@@ -37,9 +56,9 @@ module.exports = {
         })
     },
     destroy(req, res, next){
-        listQueries.deleteList(req.params.id, (err, list) => {
+        listQueries.deleteList(req, (err, list) => {
             if(err){
-                res.redirect(500, `/lists/${list.id}`);
+                res.redirect(500, `/lists/${req.params.id}`);
             }else{
                 res.redirect(303, "/lists");
             }
@@ -50,16 +69,24 @@ module.exports = {
             if(err || list == null){
                 res.redirect(404, "/");
             }else{
-                res.render("lists/edit", {list});
+               
+                const authorized = new Authorizer(req.user, list).edit();
+
+                if(authorized){
+                    res.render("lists/edit", {list});
+                }else{
+                    req.flash("You are not authorized to do that.");
+                    res.redirect(`/lists/${req.params.id}`)
+                }
             }
         })
     },
     update(req, res, next){
-        listQueries.updateList(req.params.id, req.body, (err, list) => {
+        listQueries.updateList(req, req.body, (err, list) => {
             if(err || list == null){
                 res.redirect(404, `/lists/${req.params.id}/edit`);
             }else{
-                res.redirect(`/lists/${list.id}`);
+                res.redirect(`/lists/${req.params.id}`);
             }
         })
     }

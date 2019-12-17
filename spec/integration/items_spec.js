@@ -5,33 +5,55 @@ const base = "http://localhost:3000/lists";
 const sequelize = require("../../src/db/models/index").sequelize;
 const List = require("../../src/db/models").List;
 const Item = require("../../src/db/models").Item;
+const User = require("../../src/db/models").User;
 
 describe("routes : items", () => {
 
     beforeEach((done) => {
-        this.list;
-        this.item;
 
         sequelize.sync({force: true}).then((res) => {
-            List.create({
-                title: "Thursdays List",
-                description: "Thursday dinner"
-            }).then((list) => {
-                this.list = list;
+            
+            this.user;
+            this.list;
+            this.item;
 
-                Item.create({
-                    name: "Ribs",
-                    purchased: false,
-                    listId: this.list.id
-                }).then((item) => {
-                    this.item = item;
-                    done()
-                })
-            }).catch((err) => {
-                console.log(err);
-                done();
+            User.create({
+                email: "ds@gmail.com",
+                password: "hello12"
+            }).then((user) => {
+                this.user = user;
+
+                request.get({        
+                    url: "http://localhost:3000/auth/fake",
+                    form: {
+                      role: user.role,     
+                      userId: user.id,
+                      email: user.email
+                    }
+                  });
+
+                List.create({
+                    title: "Thursdays List",
+                    description: "Thursday dinner",
+                    userId: this.user.id,
+                }).then((list) => {
+                    this.list = list;
+    
+                    Item.create({
+                        name: "Ribs",
+                        purchased: false,
+                        listId: this.list.id,
+                        userId: this.user.id
+                    }).then((item) => {
+                        this.item = item;
+                        done()
+                    })
+                }).catch((err) => {
+                    console.log(err);
+                    done();
+                });
             });
-        });
+            })
     });
 
     describe("GET /lists/:listId/items/new", () => {
@@ -155,25 +177,35 @@ describe("routes : items", () => {
            sequelize.sync({force: true}).then((res) => {
                this.list2;
                this.item2;
+               this.user2;
 
-               List.create({
-                   title: "Monday Brunch",
-                   description: "Groceries needed for brunch"
-               }).then((list) => {
-                   this.list2 = list;
+                User.create({
+                    email: "example@gmail.com",
+                    password: "hello111"
+                }).then((user) => {
+                    this.user2 = user;
 
-                   Item.create({
-                       name: "steak",
-                       purchased: true,
-                       listId: this.list2.id
-                   }).then((item) => {
-                       this.item2 = item;
-                       done();
-                   })
-               }).catch((err) => {
-                   console.log(err);
-                   done();
-               })
+                    List.create({
+                        title: "Monday Brunch",
+                        description: "Groceries needed for brunch",
+                        userId: this.user.id
+                    }).then((list) => {
+                        this.list2 = list;
+     
+                        Item.create({
+                            name: "steak",
+                            purchased: true,
+                            listId: this.list2.id,
+                            userId: this.user.id
+                        }).then((item) => {
+                            this.item2 = item;
+                            done();
+                        })
+                    }).catch((err) => {
+                        console.log(err);
+                        done();
+                    })
+                })
            })
        })
     it("should changed purchased from true to false", (done) => {

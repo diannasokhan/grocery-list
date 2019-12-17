@@ -1,26 +1,51 @@
 const itemQueries = require("../db/queries.items.js");
+const listQueries = require("../db/queries.lists.js");
+const Authorizer = require("../policies/item");
 
 module.exports = {
     new(req, res, next){
-        res.render("items/new", {listId: req.params.listId});
-    },
-    create(req, res, next){
-        let newItem = {
-            name: req.body.name,
-            listId: req.params.listId
-        };
-        itemQueries.addItem(newItem, (err, item) => {
+        listQueries.getList(req.params.listId, (err, list) => {
 
-            if(err){
-                res.redirect(500, "/items/new");
+            const authorized = new Authorizer(req.user, list).new();
+
+            if(authorized){
+                res.render("items/new", {listId: req.params.listId});
             }else{
-                res.redirect(303, `/lists/${item.listId}`)
+                req.flash("You are not authorized to do that.");
+                res.redirect(`/lists/${req.params.id}`)
             }
         })
     },
+    create(req, res, next){
+
+        listQueries.getList(req.params.listId, (err, list) => {
+
+            const authorized = new Authorizer(req.user, list).create();
+
+            if(authorized){
+                let newItem = {
+                    name: req.body.name,
+                    listId: req.params.listId,
+                    userId: req.user.id
+                };
+                itemQueries.addItem(newItem, (err, item) => {
+        
+                    if(err){
+                        res.redirect(500, "/items/new");
+                    }else{
+                        res.redirect(303, `/lists/${item.listId}`)
+                    }
+                })
+            }else{
+                req.flash("You are not authorized to do that.");
+                res.redirect(`/lists/${req.params.id}`)
+            }
+        })
+        
+    },
 
     destroy(req, res, next){
-        itemQueries.deleteItem(req.params.id, (err, deletedRecordsCount) => {
+        itemQueries.deleteItem(req, (err, item) => {
             if(err){
                 res.redirect(500, `/lists/${req.params.listId}/items/${req.params.id}`)
             }else{
@@ -33,12 +58,20 @@ module.exports = {
             if(err || item == null){
                 res.redirect(404, "/");
             }else{
-                res.render("items/edit", {item});
+
+                const authorized = new Authorizer(req.user, item).edit();
+
+                if(authorized){
+                    res.render("items/edit", {item});
+                }else{
+                    req.flash("You are not authorized to do that.");
+                    res.redirect(`/lists/${req.params.listId}/items/${req.params.id}`)
+                }
             }
         });
     },
     update(req, res, next){
-        itemQueries.updateItem(req.params.id, req.body, (err, item) => {
+        itemQueries.updateItem(req, req.body, (err, item) => {
             if(err || item == null){
                 res.redirect(404, `/lists/${req.params.listId}/items/${req.params.id}/edit`)
             }else{
@@ -47,7 +80,7 @@ module.exports = {
         })
     },
     purchased(req, res, next){
-        itemQueries.purchasedItem(req.params.id, (err, item) => {
+        itemQueries.purchasedItem(req, (err, item) => {
             if(err || item == null){
                 res.redirect(404, `/lists/${req.params.listId}/items/${req.params.id}`)
             }else{
@@ -56,7 +89,7 @@ module.exports = {
         })
     },
     unpurchased(req, res, next){
-        itemQueries.unpurchasedItem(req.params.id, (err, item) => {
+        itemQueries.unpurchasedItem(req, (err, item) => {
             if(err || item == null){
                 res.redirect(404, `/lists/${req.params.listId}/items/${req.params.id}`)
             }else{

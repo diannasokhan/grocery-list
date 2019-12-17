@@ -3,23 +3,43 @@ const server = require("../../src/server");
 const base = "http://localhost:3000/lists";
 const sequelize = require("../../src/db/models/index").sequelize;
 const List = require("../../src/db/models").List;
+const User = require("../../src/db/models").User;
 
 describe("routes : lists", () => {
 
     beforeEach((done) => {
         this.list;
+        this.user;
         sequelize.sync({force: true}).then((res) => {
-            List.create({
-                title: "Monday's shopping list",
-                description: "Monday Dinner"
-            }).then((list) => {
-                this.list = list;
-                done();
-            }).catch((err) => {
-                console.log(err);
-                done();
+            User.create({
+                email: "ds@gmail.com",
+                password: "hello12",
+                role: "member"
+            }).then((user) => {
+                this.user = user;
+
+                request.get({        
+                    url: "http://localhost:3000/auth/fake",
+                    form: {
+                      role: user.role,     
+                      userId: user.id,
+                      email: user.email
+                    }
+                  });
+
+                List.create({
+                    title: "Monday's shopping list",
+                    description: "Monday Dinner",
+                    userId: this.user.id
+                }).then((list) => {
+                    this.list = list;
+                    done();
+                }).catch((err) => {
+                    console.log(err);
+                    done();
+                });
             });
-        });
+            })
     });
 
     describe("GET /lists", () => {
@@ -48,6 +68,7 @@ describe("routes : lists", () => {
             form: {
                 title: "Tuesday's grocery list",
                 description: "Tuesday dinner"
+            
             }
         };
         it("should create a new list and redirect", (done) => {

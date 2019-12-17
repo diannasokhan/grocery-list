@@ -1,5 +1,5 @@
 const Item = require("./models").Item;
-const List = require("./models").List;
+const Authorizer = require("../policies/item");
 
 module.exports = {
     addItem(newItem, callback){
@@ -10,11 +10,20 @@ module.exports = {
             callback(err);
         })
     },
-    deleteItem(id, callback){
-        return Item.destroy({
-            where: {id}
-        }).then((deletedRecordsCount) => {
-            callback(null, deletedRecordsCount);
+    deleteItem(req, callback){
+
+        return Item.findByPk(req.params.id)
+        .then((item) => {
+            const authorized = new Authorizer(req.user, item).destroy();
+            if(authorized){
+                item.destroy()
+                .then((res) => {
+                    callback(null, item);
+                });
+            }else{
+                req.flash("notice", "You are not authorized to do that.");
+                callback(401);
+            }
         }).catch((err) => {
             callback(err);
         })
@@ -27,49 +36,74 @@ module.exports = {
             callback(err);
         })
     },
-    updateItem(id, updatedItem, callback){
-        return Item.findByPk(id)
+    updateItem(req, updatedItem, callback){
+
+        return Item.findByPk(req.params.id)
         .then((item) => {
             if(!item){
                 return callback("Item not found");
             }
-            item.update(updatedItem, {
-                fields: Object.keys(updatedItem)
-            }).then(() => {
-                callback(null, item);
-            }).catch((err) => {
-                callback(err);
-            })
-        })
+
+            const authorized = new Authorizer(req.user, item).update();
+
+            if(authorized){
+                item.update(updatedItem, {
+                    fields: Object.keys(updatedItem)
+                }).then(() => {
+                    callback(null, item);
+                }).catch((err) => {
+                    callback(err);
+                });
+            }else{
+                req.flash("notice", "You are not authorized too do that.");
+                callback("Forbidden");
+            }
+        });
     },
-    purchasedItem(id, callback){
-        return Item.findByPk(id)
+    purchasedItem(req, callback){
+        return Item.findByPk(req.params.id)
         .then((item) => {
             if(!item){
                 return callback("Item not found");
             }
-            item.update({
-                purchased: true
-            }).then(() => {
-                callback(null, item);
-            }).catch((err) => {
-                callback(err);
-            })
-        })
+
+            const authorized = new Authorizer(req.user, item).update();
+
+            if(authorized){
+                item.update({
+                    purchased: true
+                }).then(() => {
+                    callback(null, item);
+                }).catch((err) => {
+                    callback(err);
+                });
+            }else{
+                req.flash("notice", "You are not authorized too do that.");
+                callback("Forbidden");
+            }
+        });
     },
-    unpurchasedItem(id, callback){
-        return Item.findByPk(id)
+    unpurchasedItem(req, callback){
+        return Item.findByPk(req.params.id)
         .then((item) => {
             if(!item){
                 return callback("Item not found");
             }
-            item.update({
-                purchased: false
-            }).then(() => {
-                callback(null, item);
-            }).catch((err) => {
-                callback(err);
-            })
-        })
+
+            const authorized = new Authorizer(req.user, item).update();
+
+            if(authorized){
+                item.update({
+                    purchased: false
+                }).then(() => {
+                    callback(null, item);
+                }).catch((err) => {
+                    callback(err);
+                });
+            }else{
+                req.flash("notice", "You are not authorized too do that.");
+                callback("Forbidden");
+            }
+        });
     }
 }
